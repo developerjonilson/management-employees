@@ -26,4 +26,20 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function getMasterAttribute() {
+        if($this->userable_type == 'App\Master') return $this->userable;
+        
+        return null;
+    }
+
+    public function getContributorAttribute() {
+        if($this->userable_type == 'App\Contributor') return $this->userable;
+        
+        return null;
+    }
+    
+    public function userable() {
+        return $this->morphTo();
+    }
 }

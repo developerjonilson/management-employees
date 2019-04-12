@@ -71,5 +71,13 @@ class UserController extends Controller
         $user = JWTAuth::toUser($request->token);
         
         return response()->json(['result' => $user]);
-    }  
+    }
+
+    public function master() {
+        $user = $this->user::find(2);
+
+        // $userable = $user->master;
+        $userable = $user->contributor;
+        return response()->json(['result' => $userable]);
+    }
 }
