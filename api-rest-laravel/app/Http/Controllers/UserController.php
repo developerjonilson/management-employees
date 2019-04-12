@@ -6,9 +6,11 @@ use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
+use Validator;
 use JWTAuth;
-use App\User;
 use JWTAuthException;
+use App\User;
+use App\Contributor;
 
 /**
  * Here is the class responsible for registering new users in the application 
@@ -19,19 +21,34 @@ use JWTAuthException;
 class UserController extends Controller
 {
     private $user;
-    public function __construct(User $user){
+    private $contributor;
+    public function __construct(User $user, Contributor $contributor){
         $this->user = $user;
+        $this->contributor = $contributor;
     }
 
     /**
      * Method responsible for registering new users in the application.
      */
     public function register(Request $request){
-        $user = $this->user->create([
-          'name' => $request->get('name'),
-          'email' => $request->get('email'),
-          'password' => bcrypt($request->get('password'))
-        ]);
+        try {
+            $contributor = $this->contributor->create([
+                'cpf' => $request->get('cpf'),
+                'pis' => $request->get('pis'),
+                'position' => $request->get('position'),
+                'team' => $request->get('team')
+            ]);
+            
+            $user = $this->user->create([
+                'name' => $request->get('name'),
+                'email' => $request->get('email'),
+                'password' => bcrypt($request->get('password')),
+                'userable_id' => $contributor->id,
+                'userable_type' => Contributor::class
+            ]);
+        } catch (JWTAuthException $e) {
+            return response()->json(['status'=>false, 'message'=>'Erro ao cadastrar novo usuário']);
+        }
 
         return response()->json(['status'=>true, 'message'=>'Usuário cadastrado com sucesso', 'data'=>$user]);
     }
@@ -52,14 +69,15 @@ class UserController extends Controller
         } catch (JWTAuthException $e) {
             return response()->json(['failed_to_create_token'], 500);
         }
-        return response()->json(compact('token'));
+        // return response()->json(compact('token'));
+        return response()->json(['token' => $token], 200);
     }
 
     /**
      * Method responsible for providing the data of the user who is authenticated.
      */
     public function getAuthUser(Request $request){
-        $user = JWTAuth::toUser($request->token);
+        $user = JWTAuth::toUser($request->bearerToken());
         
         return response()->json(['result' => $user]);
     }
@@ -67,10 +85,16 @@ class UserController extends Controller
     /**
      * Method responsible for moving the user from the application.
      */
-    public function logout(Request $request){
-        $user = JWTAuth::toUser($request->token);
+    public function logout(Request $request) {
+        $this->validate($request, ['token' => 'required']);
         
-        return response()->json(['result' => $user]);
+        try {
+            JWTAuth::invalidate($request->token);
+            return response()->json(['success' => true, 'message'=> "Lougout efetuado com sucesso."]);
+        } catch (JWTException $e) {
+            // something went wrong whilst attempting to encode the token
+            return response()->json(['success' => false, 'error' => 'Falha ao sair, por favor, tente novamente.'], 500);
+        }
     }
 
     public function master() {

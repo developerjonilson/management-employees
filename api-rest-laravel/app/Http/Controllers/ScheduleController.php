@@ -8,15 +8,13 @@ use App\Schedule;
 class ScheduleController extends Controller
 {
     public function __construct(Schedule $schedule) {
-        // $this->middleware('auth');
         $this->schedule = $schedule;
     }
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        return response()->json(['success'], 200);
+    public function index() {
+        return response()->json(['success'=>'index schedule'], 200);
     }
 
     /**
@@ -24,30 +22,13 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        return response()->json(['success'=>'store schedule'], 200);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in the database.
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource in the database.
-     */
-    public function destroy($id)
-    {
-        //
+    public function show($id) {
+        return response()->json(['success'=>'show schedule'], 200);
     }
 }
