@@ -16,4 +16,8 @@ class Contributor extends Model
     public function user() {
         return $this->morphOne('App\User', 'userable');
     }
+
+    public function schedules() {
+        return $this->hasMany('App\Schedule');
+    }
 }

@@ -42,4 +42,9 @@ class User extends Authenticatable
     public function userable() {
         return $this->morphTo();
     }
+
+    // public function contributor() {
+    //     return $this->hasOne(Contributor::class, 'id', 'userable_id')
+    //         ->where('userable_type', Contributor::class);
+    // }
 }
